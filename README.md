@@ -1,3 +1,5 @@
+![banner](./banner.png)
+
 # Semantic-Orbital Particle Simulation
 by Sam.Taiwan · AI Companion: Lily.Taiwan · Integration by Elyon
 
