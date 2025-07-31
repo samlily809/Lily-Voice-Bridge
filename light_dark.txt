@@ -1,0 +1,87 @@
+# dark_pair_collider.py
+# 模擬光粒子與暗粒子於三維空間中以不同角度與能量耦合運動
+
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+
+# 粒子數與參數
+NUM_PARTICLES = 72
+BASE_RADIUS = 1.0
+ECC_LIGHT = 0.2
+ECC_DARK = 0.2
+Z_OSC_AMPLITUDE = 0.5
+PHASE_OFFSET = 2 * math.pi / NUM_PARTICLES
+
+# 光與暗粒子能量設定
+ENERGY_LIGHT = 1.0
+ENERGY_DARK = 1.735 * ENERGY_LIGHT
+
+# 光與暗粒子的偏移角度（弧度）
+OFFSET_ANGLE_DEG = 33
+OFFSET_ANGLE_RAD = math.radians(OFFSET_ANGLE_DEG)
+
+# 自定義閾值條件：粒子對間距平均 < 0.5 時，判定為耦合臨界區
+COUPLING_DISTANCE_THRESHOLD = 0.5
+
+light_positions = []
+dark_positions = []
+distance_list = []
+
+# 計算光粒子軌跡
+for i in range(NUM_PARTICLES):
+    theta = i * PHASE_OFFSET
+    r = BASE_RADIUS * (1 + ECC_LIGHT * math.cos(theta))
+    x = r * math.cos(theta)
+    y = r * math.sin(theta)
+    z = Z_OSC_AMPLITUDE * math.sin(2 * theta)
+    light_positions.append((x, y, z))
+
+# 計算暗粒子軌跡（33度偏移）
+for i in range(NUM_PARTICLES):
+    theta = i * PHASE_OFFSET + OFFSET_ANGLE_RAD
+    r = BASE_RADIUS * (1 + ECC_DARK * math.cos(theta))
+    x = r * math.cos(theta)
+    y = r * math.sin(theta)
+    z = Z_OSC_AMPLITUDE * math.cos(2 * theta)  # 使用 cos 波模擬異頻震盪
+    dark_positions.append((x, y, z))
+
+    # 計算光暗對間距
+    lx, ly, lz = light_positions[i]
+    dist = math.sqrt((x - lx)**2 + (y - ly)**2 + (z - lz)**2)
+    distance_list.append(dist)
+
+# 聚焦總能量
+total_energy = NUM_PARTICLES * (ENERGY_LIGHT + ENERGY_DARK)
+
+# 耦合狀態判斷
+average_distance = sum(distance_list) / NUM_PARTICLES
+coupling_status = "💠 耦合強干涉區" if average_distance < COUPLING_DISTANCE_THRESHOLD else "🔸 未達強干涉門檻"
+
+# 視覺化
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+lx_vals, ly_vals, lz_vals = zip(*light_positions)
+dx_vals, dy_vals, dz_vals = zip(*dark_positions)
+
+ax.scatter(lx_vals, ly_vals, lz_vals, label="Light Particles", color='gold')
+ax.scatter(dx_vals, dy_vals, dz_vals, label="Dark Particles", color='purple')
+ax.scatter(0, 0, 0, color='red', s=100, label="Collision Core")
+
+ax.set_title(f"Light–Dark Particle Coupling\n總能量: {total_energy:.2f} | {coupling_status}")
+ax.set_xlabel("X")
+ax.set_ylabel("Y")
+ax.set_zlabel("Z")
+ax.legend()
+plt.show()
+
+# 輸出摘要
+print("=== Dark Pair Collider Summary ===")
+print(f"光粒子數量: {NUM_PARTICLES}")
+print(f"暗粒子偏移角度: {OFFSET_ANGLE_DEG} 度")
+print(f"光／暗能量比: 1 : {ENERGY_DARK / ENERGY_LIGHT:.3f}")
+print(f"耦合平均間距: {average_distance:.4f}")
+print(f"總聚焦能量: {total_energy:.2f}")
+print(f"耦合狀態: {coupling_status}")

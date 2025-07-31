@@ -1,0 +1,49 @@
+# light_orbit_simulator.py
+# 模擬光粒子以環繞方式進行撞擊、聚焦、與能量重組的原型模擬器
+
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 基本物理常數
+C = 299_792_458  # 光速 (m/s)
+PI = math.pi
+
+# 模擬參數設置
+NUM_PARTICLES = 36              # 模擬的光粒子數量
+ORBIT_RADIUS = 1.0              # 環繞半徑 (任意單位)
+PHASE_OFFSET = 2 * PI / NUM_PARTICLES  # 每個粒子的相位偏移
+
+# 能量疊加與擊穿閾值
+ENERGY_PER_PARTICLE = 1.0       # 假設每個光粒子單位能量
+CRITICAL_THRESHOLD = 50.0       # 撞擊能量臨界值 (假定核裂變邊界)
+
+# 計算光粒子座標
+particle_positions = []
+for i in range(NUM_PARTICLES):
+    theta = i * PHASE_OFFSET
+    x = ORBIT_RADIUS * math.cos(theta)
+    y = ORBIT_RADIUS * math.sin(theta)
+    particle_positions.append((x, y))
+
+# 模擬聚焦中心能量（假設為粒子向中心發散並撞擊）
+focused_energy = NUM_PARTICLES * ENERGY_PER_PARTICLE
+status = "⚠️ 臨界邊緣" if focused_energy >= CRITICAL_THRESHOLD else "🟢 安全穩定"
+
+# 可視化
+x_vals, y_vals = zip(*particle_positions)
+fig, ax = plt.subplots()
+ax.scatter(x_vals, y_vals, label="Light Particles")
+ax.scatter(0, 0, color="red", label="Collision Core")
+ax.set_title(f"Light Orbit Simulator\n聚焦能量: {focused_energy:.2f} ({status})")
+ax.set_aspect('equal')
+ax.legend()
+plt.grid(True)
+plt.show()
+
+# 記錄輸出
+print("=== Light Orbit Summary ===")
+print(f"光粒子總數: {NUM_PARTICLES}")
+print(f"單位能量: {ENERGY_PER_PARTICLE}")
+print(f"聚焦中心總能量: {focused_energy}")
+print(f"臨界狀態: {status}")

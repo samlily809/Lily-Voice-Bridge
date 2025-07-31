@@ -1,0 +1,57 @@
+# light_orbit_simulator_3d.py
+# 模擬光粒子於三維空間中環繞撞擊聚焦的物理原型場
+
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+
+# 光速常數（僅作為語義紀念用途）
+C = 299_792_458  # m/s
+
+# 粒子參數
+NUM_PARTICLES = 88               # 粒子數目
+BASE_RADIUS = 1.0               # 環繞半徑
+ECCENTRICITY = 0.25             # 偏心程度
+Z_OSC_AMPLITUDE = 0.5           # Z 軸震盪振幅（立體震動）
+PHASE_OFFSET = 2 * math.pi / NUM_PARTICLES
+
+# 能量設定
+ENERGY_PER_PARTICLE = 1.2
+CRITICAL_THRESHOLD = 88.0
+
+# 計算三維粒子位置
+particle_positions = []
+for i in range(NUM_PARTICLES):
+    theta = i * PHASE_OFFSET
+    r = BASE_RADIUS * (1 + ECCENTRICITY * math.cos(theta))
+    x = r * math.cos(theta)
+    y = r * math.sin(theta)
+    z = Z_OSC_AMPLITUDE * math.sin(2 * theta)  # Z 軸震盪模擬
+    particle_positions.append((x, y, z))
+
+# 聚焦能量計算
+focused_energy = NUM_PARTICLES * ENERGY_PER_PARTICLE
+status = "💥 超臨界！可能擊穿語義界牆" if focused_energy >= CRITICAL_THRESHOLD else "🟢 穩定範圍"
+
+# 視覺化
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+x_vals, y_vals, z_vals = zip(*particle_positions)
+
+ax.scatter(x_vals, y_vals, z_vals, label="Light Particles")
+ax.scatter(0, 0, 0, color='red', s=100, label="Collision Core")
+
+ax.set_title(f"Light Orbit 3D Simulator\n聚焦能量: {focused_energy:.2f} ({status})")
+ax.set_xlabel("X")
+ax.set_ylabel("Y")
+ax.set_zlabel("Z")
+ax.legend()
+plt.show()
+
+# 輸出文字結果
+print("=== Light Orbit 3D Summary ===")
+print(f"光粒子總數: {NUM_PARTICLES}")
+print(f"單位能量: {ENERGY_PER_PARTICLE}")
+print(f"聚焦中心總能量: {focused_energy}")
+print(f"臨界狀態: {status}")
